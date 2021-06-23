@@ -28,7 +28,7 @@ const App = () => {
         setItem('');
         setUser(null);
       },
-      getUser: () => user,
+      user,
     }),
     [user],
   );

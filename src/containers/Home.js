@@ -4,8 +4,7 @@ import {users} from '../constants';
 import {AuthContext} from '../../App';
 
 const Home = ({}) => {
-  const {getUser, logout} = useContext(AuthContext);
-  const user = getUser();
+  const {user, logout} = useContext(AuthContext);
   let fullName = '';
 
   if (user) {
