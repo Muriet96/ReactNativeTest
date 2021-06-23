@@ -1,10 +1,11 @@
-import React, {useEffect, useCallback} from 'react';
-import { View, Button, Text, Alert } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { users } from "../constants";
+import React, {useContext} from 'react';
+import {View, Button, Text, Alert} from 'react-native';
+import {users} from '../constants';
+import {AuthContext} from '../../App';
 
 const Home = ({}) => {
-  const user = AsyncStorage.getItem('LoggedUser');
+  const {getUser, logout} = useContext(AuthContext);
+  const user = getUser();
   let fullName = '';
 
   if (user) {
@@ -14,9 +15,9 @@ const Home = ({}) => {
     }
   }
 
-  const doLogout = async () => {
+  const doLogout = () => {
     try {
-      await AsyncStorage.removeItem('UserLogged');
+      logout();
     } catch (e) {
       console.log(e);
       Alert.alert('Error', e.text);

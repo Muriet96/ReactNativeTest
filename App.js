@@ -1,52 +1,54 @@
 import React from 'react';
-import {Node, useState, useCallback} from 'react';
-import {SafeAreaView, StyleSheet} from 'react-native';
+import {useState, useEffect, createContext} from 'react';
 import 'react-native-gesture-handler';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {Home, Login} from './src/containers';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useAsyncStorage} from '@react-native-async-storage/async-storage';
 
+export const AuthContext = createContext();
 const Stack = createStackNavigator();
-
 const App = () => {
-  const [isLogged, setIsLog] = useState(false);
+  const [user, setUser] = useState(null);
+  const {setItem, getItem} = useAsyncStorage('LoggedUser');
 
+  console.log('User', user);
 
-  console.log('ss');
+  useEffect(() => {
+    getItem().then(userValue => setUser(userValue));
+  }, []);
+
+  const authContext = React.useMemo(
+    () => ({
+      login: userData => {
+        setItem(userData);
+        setUser(userData);
+      },
+      logout: () => {
+        setItem('');
+        setUser(null);
+      },
+      getUser: () => user,
+    }),
+    [user],
+  );
+
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-        }}>
-        {!isLogged ? (
-          <Stack.Screen name="Login" component={Login} />
-        ) : (
-          <Stack.Screen name="Home" component={Home} />
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <AuthContext.Provider value={authContext}>
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+          }}>
+          {!user ? (
+            <Stack.Screen name="Login" component={Login} />
+          ) : (
+            <Stack.Screen name="Home" component={Home} />
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </AuthContext.Provider>
   );
 };
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
 
 export default App;

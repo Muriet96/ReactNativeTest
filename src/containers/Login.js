@@ -1,21 +1,24 @@
-import React, {useEffect, useCallback, useState} from 'react';
-import { View, TextInput, Button, Alert } from "react-native";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, {useState, useContext} from 'react';
+import {View, TextInput, Button, Alert} from 'react-native';
 
 import {users} from '../constants';
+import {AuthContext} from '../../App';
 
 const Login = ({navigation}) => {
   const [user, setUser] = useState('');
   const [password, setPassword] = useState('');
+  const {login} = useContext(AuthContext);
 
-  const doLogin = async () => {
-    if (user.trim().length && password.trim().length) {
+  const hasData = user.trim().length && password.trim().length;
+
+  const doLogin = () => {
+    if (hasData) {
       const indexOfUser = users.findIndex(
         userItem => userItem.user === user && userItem.password === password,
       );
       if (indexOfUser > -1) {
         try {
-          await AsyncStorage.setItem('LoggedUser', user);
+          login(user);
         } catch (e) {
           console.log(e);
           Alert.alert('Error', e.text);
@@ -44,7 +47,12 @@ const Login = ({navigation}) => {
         secureTextEntry={true}
       />
 
-      <Button onPress={doLogin} title={'Login'} style={styles.button} />
+      <Button
+        onPress={doLogin}
+        title={'Login'}
+        style={styles.button}
+        disabled={!hasData}
+      />
     </View>
   );
 };
